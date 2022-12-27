@@ -1,0 +1,60 @@
+- hosts: all
+  become: true
+  become_method: sudo
+  vars_files:
+    - vars.yml
+
+  pre_tasks:
+
+    - name: Install packages that allow apt to be used over HTTPS
+      apt:
+        name: "{{ packages }}"
+        state: present
+        update_cache: yes
+      vars:
+        packages:
+          - apt-transport-https
+          - ca-certificates
+          - curl
+          - gnupg2
+          - gnupg-agent
+          - software-properties-common
+
+    - name: Remove swapfile from /etc/fstab
+      mount:
+        name: "{{ item }}"
+        fstype: swap
+        state: absent
+      with_items:
+        - swap
+        - none
+
+    - name: Disable swap
+      command: swapoff -a
+      when: ansible_swaptotal_mb >= 0
+
+    - name: Ensure br_netfilter is enabled.
+      modprobe:
+        name: br_netfilter
+        state: present
+      when: >
+        ansible_distribution != 'Debian'
+        or ansible_distribution_major_version | int < 10
+
+    - name: set iptables
+      shell: update-alternatives --set iptables /usr/sbin/iptables-legacy | cat
+      ignore_errors: true
+
+    - name: ensure net.bridge.bridge-nf-call-ip6tables is set to 1
+      sysctl:
+       name: net.bridge.bridge-nf-call-ip6tables
+       value: 1
+       state: present
+
+    - name: ensure net.bridge.bridge-nf-call-iptables is set to 1
+      sysctl:
+       name: net.bridge.bridge-nf-call-iptables
+       value: 1
+       state: present
+
+

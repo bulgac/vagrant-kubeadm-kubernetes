@@ -1,0 +1,39 @@
+- hosts: all
+  become: true
+  become_method: sudo
+  vars_files:
+    - vars.yml
+
+  roles:
+    - geerlingguy.docker
+
+  tasks:
+
+    - name: reload systemd
+      command: systemctl daemon-reload
+
+    - name: enable docker
+      systemd:
+        name: docker
+        enabled: yes
+
+    - name: start Docker
+      service:
+         name: docker
+         state: restarted
+      ignore_errors: true
+
+    - name: fix containerd
+      shell: mkdir -p /etc/containerd && containerd config default > /etc/containerd/config.toml
+      ignore_errors: true
+
+    - name: start containerd
+      service:
+         name: containerd
+         state: restarted
+      ignore_errors: true
+
+    - name: enable containerd
+      systemd:
+          name: containerd
+          enabled: yes

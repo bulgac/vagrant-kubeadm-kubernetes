@@ -1,0 +1,37 @@
+
+kubernetes_allow_pods_on_master: false
+kubernetes_apiserver_advertise_address: "192.168.200.10"
+kubernetes_version: '1.24'
+kubernetes_pod_network:
+  cni: 'flannel'
+  cidr: '10.244.0.0/16'
+kubernetes_version_kubeadm: 'stable-{{ kubernetes_version }}'
+kubernetes_ignore_preflight_errors: 'all'
+kubernetes_config_kubelet_configuration:
+  cgroupDriver: "systemd"
+kubernetes_config_init_configuration:
+      localAPIEndpoint:
+        advertiseAddress: "{{ kubernetes_apiserver_advertise_address | default(ansible_default_ipv4.address, true) }}"
+kubernetes_apt_release_channel: main
+kubernetes_apt_repository: "deb http://apt.kubernetes.io/ kubernetes-xenial {{ kubernetes_apt_release_channel }}"
+kubernetes_apt_ignore_key_error: true
+firewall_allowed_tcp_ports:
+  - "22"
+  - "80"
+  - "443"
+  - "2376"
+  - "2379"
+  - "2380"
+  - "6443"
+  - "9099"
+  - "10250"
+  - "10254"
+firewall_allowed_udp_ports:
+  - "8472"
+firewall_additional_rules:
+  - "iptables -A INPUT -p tcp --match multiport --dports 30000:32767 -j ACCEPT"
+  - "iptables -A INPUT -p udp --match multiport --dports 30000:32767 -j ACCEPT"
+
+helm_repo_path: "https://get.helm.sh"
+helm_bin_path: /usr/local/bin/helm
+

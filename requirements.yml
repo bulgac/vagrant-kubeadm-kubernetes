@@ -1,0 +1,6 @@
+---
+- src: geerlingguy.firewall
+- src: geerlingguy.docker
+- src: geerlingguy.containerd
+- src: geerlingguy.kubernetes
+- src: geerlingguy.helm
