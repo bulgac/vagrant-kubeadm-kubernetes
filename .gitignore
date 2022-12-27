@@ -1,6 +1,7 @@
 # General
 .vagrant/
 configs/**
+.idea/**
 
 # Log files (if you are creating logs in debug mode, uncomment this)
 *.log
@@ -32,3 +33,4 @@ Network Trash Folder
 Temporary Items
 .apdisk
 !/**/.gitkeep
+
